@@ -1,4 +1,3 @@
-
 package data;
 
 import java.sql.PreparedStatement;
@@ -12,21 +11,20 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import java.sql.SQLException;
 
+public class UsuarioDAO implements CrudSimpleInterface<Usuario> {
 
-public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
-    
     private final Conexion con;
     private PreparedStatement ps;
     private ResultSet rs;
     private boolean resp;
-    
-    public UsuarioDAO(){
+
+    public UsuarioDAO() {
         con = Conexion.getInstancia();
-        
+
     }
 
     @Override
-    public List<Usuario> listar(String Texto) {  
+    public List<Usuario> listar(String Texto) {
         List<Usuario> registros = new ArrayList<>();
 
         try {
@@ -37,14 +35,13 @@ public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
 
             while (rs.next()) {
                 registros.add(new Usuario(
-                    rs.getInt(1),
-                    rs.getString(2),
-                    rs.getString(3),
-                    rs.getString(4),
-                    rs.getString(5),
-                    rs.getString(6),
-                    rs.getBoolean(7)
-                        
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4),
+                        rs.getString(5),
+                        rs.getString(6),
+                        rs.getBoolean(7)
                 ));
             }
             ps.close();
@@ -61,11 +58,9 @@ public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
         return registros;
     }
 
-    
-
     @Override
     public boolean insertar(Usuario object) {
-      resp = false;
+        resp = false;
         try {
             ps = con.conectar().prepareStatement("INSERT INTO usuario (nombre, email, user, contraseña, fecha_creacion) VALUES (?, ?, ?, ?, ?)");
             ps.setString(1, object.getNombre());
@@ -88,8 +83,6 @@ public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
         }
         return resp;
     }
-  
-    
 
     @Override
     public boolean actualizar(Usuario object) {
@@ -116,6 +109,36 @@ public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
         return resp;
     }
 
+    public Usuario validarLogin(String user, String contraseña) {
+        Usuario usuario = null;
+        try {
+            ps = con.conectar().prepareStatement("SELECT * FROM usuario WHERE user = ? AND contraseña = ?");
+            ps.setString(1, user);
+            ps.setString(2, contraseña);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                usuario = new Usuario(
+                        rs.getInt("id_usuario"),
+                        rs.getString("nombre"),
+                        rs.getString("email"),
+                        rs.getString("user"),
+                        rs.getString("contraseña"),
+                        rs.getString("fecha_creacion"),
+                        rs.getBoolean("activo")
+                );
+            }
+            ps.close();
+            rs.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        } finally {
+            ps = null;
+            rs = null;
+            con.desconectar();
+        }
+        return usuario;
+    }
 
     @Override
     public boolean desactivar(int id) {
@@ -136,11 +159,9 @@ public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
         return resp;
     }
 
-    
-
     @Override
     public boolean activar(int id) {
-      resp = false;
+        resp = false;
         try {
             ps = con.conectar().prepareStatement("UPDATE usuario SET activo = 1 WHERE id_usuario = ?");
             ps.setInt(1, id);
@@ -156,12 +177,10 @@ public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
         }
         return resp;
     }
-   
-    
 
     @Override
     public int total() {
-       int totalRegistros = 0;
+        int totalRegistros = 0;
         try {
             ps = con.conectar().prepareStatement("SELECT COUNT(id_usuario) FROM usuario");
             rs = ps.executeQuery();
@@ -180,11 +199,10 @@ public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
         }
         return totalRegistros;
     }
-    
 
     @Override
     public boolean existencia(String existe) {
-      resp = false;
+        resp = false;
         try {
             ps = con.conectar().prepareStatement("SELECT COUNT(*) FROM usuario WHERE user = ?");
             ps.setString(1, existe);
@@ -203,7 +221,4 @@ public class UsuarioDAO implements CrudSimpleInterface<Usuario>{
         }
         return resp;
     }
-}  
-    
-    
-
+}

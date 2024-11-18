@@ -1,15 +1,54 @@
 package presentation;
 
+import data.UsuarioDAO;
+import entities.Usuario;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 
 public class FrmLogin extends javax.swing.JFrame {
-    
+
     int xMouse, yMouse;
-    
+
     public FrmLogin() {
         initComponents();
     }
-    
+
+    public void autenticarUsuario() {
+        String usuario = userLabel.getText(); // Campo de texto para el nombre de usuario
+        JPasswordField passwordField = new JPasswordField();
+        String password = new String(passwordField.getPassword());
+
+        // Configuración de la conexión
+        String url = "jdbc:mysql://localhost:3306/dbinventario"; // Cambia a tu URL de conexión
+        String user = "tu_usuario"; // Cambia por tu usuario de MySQL
+        String pass = "tu_contraseña"; // Cambia por tu contraseña de MySQL
+
+        try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+            String query = "SELECT * FROM Usuario WHERE user = ? AND contraseña = ? AND activo = 1";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, usuario);
+            stmt.setString(2, password);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                // Inicio de sesión exitoso
+                FrmMenuPrincipal menuPrincipal = new FrmMenuPrincipal();
+                menuPrincipal.setVisible(true);
+                this.dispose(); // Cierra el formulario de login
+            } else {
+                // Credenciales incorrectas
+                JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -125,6 +164,11 @@ public class FrmLogin extends javax.swing.JFrame {
                 userTxtMousePressed(evt);
             }
         });
+        userTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                userTxtActionPerformed(evt);
+            }
+        });
         bg.add(userTxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 240, 410, 30));
 
         jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
@@ -141,6 +185,11 @@ public class FrmLogin extends javax.swing.JFrame {
         passTxt.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 passTxtMousePressed(evt);
+            }
+        });
+        passTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                passTxtActionPerformed(evt);
             }
         });
         bg.add(passTxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 320, 410, 30));
@@ -171,7 +220,7 @@ public class FrmLogin extends javax.swing.JFrame {
         loginBtn.setLayout(loginBtnLayout);
         loginBtnLayout.setHorizontalGroup(
             loginBtnLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginBtnLayout.createSequentialGroup()
+            .addGroup(loginBtnLayout.createSequentialGroup()
                 .addComponent(loginBtnTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
@@ -249,7 +298,53 @@ public class FrmLogin extends javax.swing.JFrame {
     }//GEN-LAST:event_loginBtnTxtMouseEntered
 
     private void loginBtnTxtMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginBtnTxtMouseExited
-        loginBtn.setBackground(new Color(0,134,190));
+        // Cambiar el color del botón cuando el mouse sale
+        loginBtn.setBackground(new Color(0, 134, 190));
+
+        // Obtener los valores ingresados de usuario y contraseña
+        String username = userTxt.getText().trim();
+        String password = new String(passTxt.getPassword()).trim();
+
+        // Validaciones
+        if (username.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese su usuario");
+            userTxt.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese su contraseña");
+            passTxt.requestFocus();
+            return;
+        }
+
+        if (password.length() < 4) {
+            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 6 caracteres");
+            passTxt.requestFocus();
+            return;
+        }
+
+        if (!username.matches("^[a-zA-Z0-9]+$")) {
+            JOptionPane.showMessageDialog(this, "El nombre de usuario solo puede contener letras y números");
+            userTxt.requestFocus();
+            return;
+        }
+
+        // Lógica para validar el login
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        Usuario usuario = usuarioDAO.validarLogin(username, password);
+
+        if (usuario != null) {
+            // Login exitoso
+            JOptionPane.showMessageDialog(this, "Bienvenido, " + usuario.getNombre());
+            FrmMenuPrincipal mp = new FrmMenuPrincipal();
+            mp.setVisible(true);
+            this.setVisible(false);
+        } else {
+            // Credenciales incorrectas
+            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos");
+        }
+
     }//GEN-LAST:event_loginBtnTxtMouseExited
 
     private void userTxtMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_userTxtMousePressed
@@ -275,8 +370,16 @@ public class FrmLogin extends javax.swing.JFrame {
     }//GEN-LAST:event_passTxtMousePressed
 
     private void loginBtnTxtMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginBtnTxtMouseClicked
-        javax.swing.JOptionPane.showMessageDialog(this, "Intento de login con los datos:\nUsuario: " + userTxt.getText() + "\nContraseña: " + String.valueOf(passTxt.getPassword()), "LOGIN", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+      
     }//GEN-LAST:event_loginBtnTxtMouseClicked
+
+    private void userTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_userTxtActionPerformed
+
+    private void passTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_passTxtActionPerformed
 
     /**
      * @param args the command line arguments
