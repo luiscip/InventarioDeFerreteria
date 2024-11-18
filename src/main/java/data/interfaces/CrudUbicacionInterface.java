@@ -3,7 +3,7 @@ package data.interfaces;
 import entities.Ubicacion;
 import java.util.List;
 
-public interface CrudUbicacion {
+public interface CrudUbicacionInterface {
     public List<Ubicacion> listar(String nombre) throws Exception;
     public void registrar(Ubicacion categ) throws Exception;
     public void modificar(Ubicacion categ) throws Exception;

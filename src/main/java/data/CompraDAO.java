@@ -1,196 +1,170 @@
-
 package data;
 
+import entities.Compra;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import database.Conexion;
-import data.interfaces.CrudPaginadoInterface;
-import entities.Compra;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
+import data.interfaces.CrudComprasInterface;
+import database.Conexion;
 
+public class CompraDAO implements CrudComprasInterface {
 
-
-public class CompraDAO implements CrudPaginadoInterface<Compra>{
-    private final Conexion con;
-    private PreparedStatement ps;
-    private ResultSet rs;
-    private boolean resp;
+    private Connection conexion;
 
     public CompraDAO() {
-        con = Conexion.getInstancia();
+        this.conexion = Conexion.getInstancia().conectar();
     }
 
     @Override
-    public List<Compra> listar(String texto, int totalPorPagina, int numPagina) {
-        List<Compra> registros = new ArrayList<>();
-        try {
-            ps = con.conectar().prepareStatement(
-                "SELECT * FROM compra WHERE id_proveedor LIKE ? LIMIT ?, ?");
-            ps.setString(1, "%" + texto + "%");
-            ps.setInt(2, (numPagina - 1) * totalPorPagina);
-            ps.setInt(3, totalPorPagina);
-            rs = ps.executeQuery();
+    public List<Compra> listar(String nombre) throws SQLException {
+        List<Compra> lista = new ArrayList<>();
+        // Para esta implementación, suponemos que 'nombre' no es aplicable directamente,
+        // pero puedes personalizarlo si hay un campo relevante para filtrar.
+        String sql = "SELECT * FROM Compra;";
+
+        try (PreparedStatement st = conexion.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
-                registros.add(new Compra(
-                    rs.getInt("id_compra"),
-                    rs.getInt("id_proveedor"),
-                    rs.getString("fecha_compra"),
-                    rs.getDouble("total"),
-                    rs.getBoolean("activo")
-                ));
+                Compra compra = new Compra(
+                        rs.getInt("id_compra"),
+                        rs.getInt("id_proveedor"),
+                        rs.getString("fecha_compra"),
+                        rs.getDouble("total"),
+                        rs.getBoolean("activo")
+                );
+                lista.add(compra);
             }
-            ps.close();
-            rs.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            con.desconectar();
         }
-        return registros;
+        return lista;
     }
-    
 
     @Override
-    public boolean insertar(Compra obj) {
-       resp = false;
-        try {
-            ps = con.conectar().prepareStatement(
-                "INSERT INTO compra (id_proveedor, fecha_compra, total, activo) VALUES (?, ?, ?, ?)");
-            ps.setInt(1, obj.getIdProveedor());
-            ps.setString(2, obj.getFechaCompra());
-            ps.setDouble(3, obj.getTotalCompra());
-            ps.setBoolean(4, obj.isActivo());
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            con.desconectar();
+    public void registrar(Compra compra) throws SQLException {
+        String sql = "INSERT INTO Compra (id_proveedor, fecha_compra, total, activo) VALUES (?, ?, ?, ?);";
+
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, compra.getIdProveedor());
+            st.setString(2, compra.getFechaCompra());
+            st.setDouble(3, compra.getTotalCompra());
+            st.setBoolean(4, compra.isActivo());
+            st.executeUpdate();
         }
-        return resp;
     }
-    
 
     @Override
-    public boolean actualizar(Compra obj) {
-       resp = false;
-        try {
-            ps = con.conectar().prepareStatement(
-                "UPDATE compra SET id_proveedor=?, fecha_compra=?, total=?, activo=? WHERE id_compra=?");
-            ps.setInt(1, obj.getIdProveedor());
-            ps.setString(2, obj.getFechaCompra());
-            ps.setDouble(3, obj.getTotalCompra());
-            ps.setBoolean(4, obj.isActivo());
-            ps.setInt(5, obj.getIdCompra());
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            con.desconectar();
+    public void modificar(Compra compra) throws SQLException {
+        String sql = "UPDATE Compra SET id_proveedor = ?, fecha_compra = ?, total = ?, activo = ? WHERE id_compra = ?;";
+
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, compra.getIdProveedor());
+            st.setString(2, compra.getFechaCompra());
+            st.setDouble(3, compra.getTotalCompra());
+            st.setBoolean(4, compra.isActivo());
+            st.setInt(5, compra.getIdCompra());
+            st.executeUpdate();
         }
-        return resp;
-    } 
-        
+    }
+
+    @Override
+    public void eliminar(int idCompra) throws SQLException {
+        String sql = "DELETE FROM Compra WHERE id_compra = ?;";
+
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, idCompra);
+            st.executeUpdate();
+        }
+    }
+
+    @Override
+    public String getNombrePorID(int id) throws SQLException {
+        // Este método es un ejemplo y puede no tener sentido en el contexto de 'Compra'.
+        // Aquí lo implementamos solo como referencia.
+        String nombre = "Desconocido";
+        String sql = "SELECT nombre FROM Proveedor WHERE id_proveedores = ?;";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    nombre = rs.getString("nombre");
+                }
+            }
+        }
+        return nombre;
+    }
 
     @Override
     public boolean desactivar(int id) {
-       resp = false;
-        try {
-            ps = con.conectar().prepareStatement("UPDATE compra SET activo=1 WHERE id_compra=?");
-            ps.setInt(1, id);
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            con.desconectar();
-        }
-        return resp;
-    } 
-    
+        return cambiarEstado(id, false);
+    }
 
     @Override
     public boolean activar(int id) {
-       resp = false;
-        try {
-            ps = con.conectar().prepareStatement("UPDATE compra SET activo=1 WHERE id_compra=?");
-            ps.setInt(1, id);
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            con.desconectar();
-        }
-        return resp;
+        return cambiarEstado(id, true);
     }
- 
-    
+
+    private boolean cambiarEstado(int id, boolean activo) {
+        String sql = "UPDATE Compra SET activo = ? WHERE id_compra = ?;";
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setBoolean(1, activo);
+            st.setInt(2, id);
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     @Override
     public int total() {
-       int totalRegistros = 0;
-        try {
-            ps = con.conectar().prepareStatement("SELECT COUNT(id_compra) FROM compra");
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                totalRegistros = rs.getInt(1);
+        String sql = "SELECT COUNT(*) FROM Compra;";
+        try (PreparedStatement st = conexion.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
             }
-            ps.close();
-            rs.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            con.desconectar();
+            e.printStackTrace();
         }
-        return totalRegistros;
+        return 0;
     }
-
 
     @Override
     public boolean existencia(String texto) {
-      resp = false;
-        try {
-            ps = con.conectar().prepareStatement("SELECT id_compra FROM compra WHERE id_proveedor=?", 
-                                                 ResultSet.TYPE_SCROLL_INSENSITIVE, 
-                                                 ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, texto);
-            rs = ps.executeQuery();
-            rs.last();
-            if (rs.getRow() > 0) {
-                resp = true;
+        // Puedes personalizar la búsqueda según sea necesario
+        String sql = "SELECT 1 FROM Compra WHERE id_proveedor = ?;";
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, texto);
+            try (ResultSet rs = st.executeQuery()) {
+                return rs.next();
             }
-            ps.close();
-            rs.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            con.desconectar();
+            e.printStackTrace();
         }
-        return resp;
+        return false;
     }
-}  
-    
 
+    @Override
+    public Compra getCategoriaById(int idCompra) throws SQLException {
+        Compra compra = null;
+        String sql = "SELECT * FROM Compra WHERE id_compra = ? LIMIT 1;";
+
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, idCompra);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    compra = new Compra(
+                            rs.getInt("id_compra"),
+                            rs.getInt("id_proveedor"),
+                            rs.getString("fecha_compra"),
+                            rs.getDouble("total"),
+                            rs.getBoolean("activo")
+                    );
+                }
+            }
+        }
+        return compra;
+    }
+}

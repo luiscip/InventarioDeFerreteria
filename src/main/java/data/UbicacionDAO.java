@@ -1,7 +1,7 @@
 package data;
 
 import entities.Ubicacion;
-import data.interfaces.CrudUbicacion;
+import data.interfaces.CrudUbicacionInterface;
 import database.Conexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UbicacionDAO implements CrudUbicacion {
+public class UbicacionDAO implements CrudUbicacionInterface {
     private final Connection conexion;
 
     public UbicacionDAO() {
