@@ -3,10 +3,9 @@ package presentation.interfaces;
 import data.ProductoDAO;
 import database.Conexion;
 import presentation.FrmMenuPrincipal;
-import data.interfaces.CrudPaginadoInterface;
-import data.interfaces.CrudProductoInterface;
 import java.awt.Color;
 import javax.swing.table.DefaultTableModel;
+import data.interfaces.CrudGeneralInterface;
 
 public class FrmProductos extends javax.swing.JPanel {
 
@@ -152,7 +151,7 @@ public class FrmProductos extends javax.swing.JPanel {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, true, true, true, true, true, true, true, true, true
+                false, false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -262,7 +261,7 @@ public class FrmProductos extends javax.swing.JPanel {
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        CrudProductoInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
+        CrudGeneralInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
         DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
         if (tablaListado.getSelectedRows().length < 1) {
             javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más libros a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
@@ -282,7 +281,7 @@ public class FrmProductos extends javax.swing.JPanel {
         if (tablaListado.getSelectedRow() > -1) {
             try {
                 int bookId = (int) tablaListado.getValueAt(tablaListado.getSelectedRow(), 0);
-                CrudProductoInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
+                CrudGeneralInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
                 //FrmMenuPrincipal.ShowJPanel(new UpBooks(dao.getBookById(bookId)));
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -294,7 +293,7 @@ public class FrmProductos extends javax.swing.JPanel {
 
     private void btn_BuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_BuscarActionPerformed
         try {
-            CrudProductoInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
+            CrudGeneralInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
             DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
             model.setRowCount(0); // Limpiar la tabla
 

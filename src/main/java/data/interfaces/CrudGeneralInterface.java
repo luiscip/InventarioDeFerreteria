@@ -3,7 +3,7 @@ package data.interfaces;
 import entities.Producto;
 import java.util.List;
 
-public interface CrudProductoInterface {
+public interface CrudGeneralInterface {
     public List<Producto> listar(String nombre) throws Exception;
     public void registrar(Producto produc) throws Exception;
     public void modificar(Producto produc) throws Exception;

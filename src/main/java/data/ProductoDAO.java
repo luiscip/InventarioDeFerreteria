@@ -1,15 +1,15 @@
 package data;
 
 import entities.Producto;
-import data.interfaces.CrudProductoInterface;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import data.interfaces.CrudGeneralInterface;
 
-public class ProductoDAO implements CrudProductoInterface {
+public class ProductoDAO implements CrudGeneralInterface {
     private final Connection conexion;
 
     public ProductoDAO(Connection conexion) {
