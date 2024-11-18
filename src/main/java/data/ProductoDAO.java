@@ -1,38 +1,35 @@
 package data;
 
-import database.Conexion;
-import data.interfaces.CrudPaginadoInterface;
 import entities.Producto;
-
-import java.sql.*;
+import data.interfaces.CrudProductoInterface;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 
-public class ProductoDAO implements CrudPaginadoInterface<Producto> {
+public class ProductoDAO implements CrudProductoInterface {
+    private final Connection conexion;
 
-    private final Conexion CON;
-    private PreparedStatement ps;
-    private ResultSet rs;
-    private boolean resp;
-
-    public ProductoDAO() {
-        CON = Conexion.getInstancia();
+    public ProductoDAO(Connection conexion) {
+        this.conexion = conexion;
     }
 
     @Override
-    public List<Producto> listar(String texto, int totalPorPagina, int numPagina) {
-        List<Producto> registros = new ArrayList<>();
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "SELECT * FROM producto WHERE nombre LIKE ? ORDER BY id_producto ASC LIMIT ?, ?");
-            ps.setString(1, "%" + texto + "%");
-            ps.setInt(2, (numPagina - 1) * totalPorPagina);
-            ps.setInt(3, totalPorPagina);
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                registros.add(new Producto(
+    public List<Producto> listar(String nombre) throws SQLException {
+        List<Producto> lista = new ArrayList<>();
+        String sql = nombre.isEmpty() 
+            ? "SELECT * FROM Producto;" 
+            : "SELECT * FROM Producto WHERE nombre LIKE ?;";
+        
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            if (!nombre.isEmpty()) {
+                st.setString(1, "%" + nombre + "%");
+            }
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Producto producto = new Producto(
                         rs.getInt("id_producto"),
                         rs.getInt("id_categoria"),
                         rs.getInt("id_marca"),
@@ -45,179 +42,141 @@ public class ProductoDAO implements CrudPaginadoInterface<Producto> {
                         rs.getInt("stock_minimo"),
                         rs.getString("fecha_ultima_actualizacion"),
                         rs.getBoolean("activo")
-                ));
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
+                    );
+                    lista.add(producto);
                 }
-                if (rs != null) {
-                    rs.close();
-                }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, e.getMessage());
             }
-            CON.desconectar();
         }
-        return registros;
+        return lista;
     }
 
     @Override
-    public boolean insertar(Producto obj) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "INSERT INTO Producto (id_categoria, id_marca, id_ubicacion, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, fecha_ultima_actualizacion, activo) VALUES (?,?,?,?,?,?,?,?,?,?,1)"
-            );
-            ps.setInt(1, obj.getIdCategoria());
-            ps.setInt(2, obj.getIdMarca());
-            ps.setInt(3, obj.getIdUbicacion());
-            ps.setString(4, obj.getNombre());
-            ps.setString(5, obj.getDescripcion());
-            ps.setDouble(6, obj.getPrecioCompra());
-            ps.setDouble(7, obj.getPrecioVenta());
-            ps.setInt(8, obj.getStock());
-            ps.setInt(9, obj.getStockMinimo());
-            ps.setString(10, obj.getFechaUltimaActualizacion());
-
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
+    public void registrar(Producto produc) throws SQLException {
+        String sql = "INSERT INTO Producto (id_categoria, id_marca, id_ubicacion, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, fecha_ultima_actualizacion, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, produc.getIdCategoria());
+            st.setInt(2, produc.getIdMarca());
+            st.setInt(3, produc.getIdUbicacion());
+            st.setString(4, produc.getNombre());
+            st.setString(5, produc.getDescripcion());
+            st.setDouble(6, produc.getPrecioCompra());
+            st.setDouble(7, produc.getPrecioVenta());
+            st.setInt(8, produc.getStock());
+            st.setInt(9, produc.getStockMinimo());
+            st.setString(10, produc.getFechaUltimaActualizacion());
+            st.setBoolean(11, produc.isActivo());
+            st.executeUpdate();
         }
-        return resp;
     }
 
     @Override
-    public boolean actualizar(Producto obj) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "UPDATE Producto SET id_categoria=?, id_marca=?, id_ubicacion=?, nombre=?, descripcion=?, precio_compra=?, precio_venta=?, stock=?, stock_minimo=?, fecha_ultima_actualizacion=? WHERE id_producto=?"
-            );
-            ps.setInt(1, obj.getIdCategoria());
-            ps.setInt(2, obj.getIdMarca());
-            ps.setInt(3, obj.getIdUbicacion());
-            ps.setString(4, obj.getNombre());
-            ps.setString(5, obj.getDescripcion());
-            ps.setDouble(6, obj.getPrecioCompra());
-            ps.setDouble(7, obj.getPrecioVenta());
-            ps.setInt(8, obj.getStock());
-            ps.setInt(9, obj.getStockMinimo());
-            ps.setString(10, obj.getFechaUltimaActualizacion());
-            ps.setInt(11, obj.getIdProducto());
-
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
+    public void modificar(Producto produc) throws SQLException {
+        String sql = "UPDATE Producto SET id_categoria = ?, id_marca = ?, id_ubicacion = ?, nombre = ?, descripcion = ?, precio_compra = ?, precio_venta = ?, stock = ?, stock_minimo = ?, fecha_ultima_actualizacion = ?, activo = ? WHERE id_producto = ?;";
+        
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, produc.getIdCategoria());
+            st.setInt(2, produc.getIdMarca());
+            st.setInt(3, produc.getIdUbicacion());
+            st.setString(4, produc.getNombre());
+            st.setString(5, produc.getDescripcion());
+            st.setDouble(6, produc.getPrecioCompra());
+            st.setDouble(7, produc.getPrecioVenta());
+            st.setInt(8, produc.getStock());
+            st.setInt(9, produc.getStockMinimo());
+            st.setString(10, produc.getFechaUltimaActualizacion());
+            st.setBoolean(11, produc.isActivo());
+            st.setInt(12, produc.getIdProducto());
+            st.executeUpdate();
         }
-        return resp;
+    }
+
+    @Override
+    public void eliminar(int idProducto) throws SQLException {
+        String sql = "DELETE FROM Producto WHERE id_producto = ?;";
+        
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, idProducto);
+            st.executeUpdate();
+        }
+    }
+
+    @Override
+    public Producto getProductoPorNombre(String nombre) throws SQLException {
+        Producto producto = null;
+        String sql = "SELECT * FROM Producto WHERE nombre = ?;";
+        
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, nombre);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    producto = new Producto(
+                        rs.getInt("id_producto"),
+                        rs.getInt("id_categoria"),
+                        rs.getInt("id_marca"),
+                        rs.getInt("id_ubicacion"),
+                        rs.getString("nombre"),
+                        rs.getString("descripcion"),
+                        rs.getDouble("precio_compra"),
+                        rs.getDouble("precio_venta"),
+                        rs.getInt("stock"),
+                        rs.getInt("stock_minimo"),
+                        rs.getString("fecha_ultima_actualizacion"),
+                        rs.getBoolean("activo")
+                    );
+                }
+            }
+        }
+        return producto;
     }
 
     @Override
     public boolean desactivar(int id) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "UPDATE Producto SET activo=0 WHERE id_producto=?"
-            );
-            ps.setInt(1, id);
-
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
-        }
-        return resp;
+        return cambiarEstado(id, false);
     }
 
     @Override
     public boolean activar(int id) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "UPDATE Producto SET activo=1 WHERE id_producto=?"
-            );
-            ps.setInt(1, id);
+        return cambiarEstado(id, true);
+    }
 
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
+    private boolean cambiarEstado(int id, boolean activo) {
+        String sql = "UPDATE Producto SET activo = ? WHERE id_producto = ?;";
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setBoolean(1, activo);
+            st.setInt(2, id);
+            return st.executeUpdate() > 0;
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
+            e.printStackTrace();
         }
-        return resp;
+        return false;
     }
 
     @Override
     public int total() {
-        int totalRegistros = 0;
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "SELECT COUNT(id_producto) FROM Producto"
-            );
-            rs = ps.executeQuery();
-
+        String sql = "SELECT COUNT(*) FROM Producto;";
+        try (PreparedStatement st = conexion.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
-                totalRegistros = rs.getInt(1);
+                return rs.getInt(1);
             }
-            ps.close();
-            rs.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            CON.desconectar();
+            e.printStackTrace();
         }
-        return totalRegistros;
+        return 0;
     }
 
     @Override
-    public boolean existencia(String existe) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "SELECT nombre FROM Producto WHERE nombre=?"
-            );
-            ps.setString(1, existe);
-            rs = ps.executeQuery();
-
-            if (rs.next()) {
-                resp = true;
+    public boolean existencia(String nombre) {
+        String sql = "SELECT 1 FROM Producto WHERE nombre = ?;";
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, nombre);
+            try (ResultSet rs = st.executeQuery()) {
+                return rs.next();
             }
-            ps.close();
-            rs.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            CON.desconectar();
+            e.printStackTrace();
         }
-        return resp;
+        return false;
     }
 }
