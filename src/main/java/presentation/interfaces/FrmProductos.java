@@ -1,11 +1,14 @@
 package presentation.interfaces;
 
+import data.CategoriaDAO;
+import data.MarcaDAO;
 import data.ProductoDAO;
 import database.Conexion;
 import presentation.FrmMenuPrincipal;
 import java.awt.Color;
 import javax.swing.table.DefaultTableModel;
-import data.interfaces.CrudGeneralInterface;
+import data.interfaces.CrudProductoInterface;
+import java.sql.SQLException;
 
 public class FrmProductos extends javax.swing.JPanel {
 
@@ -27,11 +30,15 @@ public class FrmProductos extends javax.swing.JPanel {
 
     private void CargarProductos() {
         try {
-            ProductoDAO dao = new ProductoDAO(Conexion.getInstancia().conectar()); // Cambiado aquí
+            ProductoDAO dao = new ProductoDAO(); // Cambiado aquí
+            CategoriaDAO categoriaDAO = new CategoriaDAO();
+            MarcaDAO marcaDAO = new MarcaDAO();
             DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
             model.setRowCount(0); // Limpiar tabla antes de cargar datos
 
             dao.listar("").forEach((producto) -> {
+                String nombreCategoria = categoriaDAO.getNombrePorID(producto.getIdCategoria());
+                String nombreMarca = marcaDAO.getNombrePorID(producto.getIdMarca());
                 model.addRow(new Object[]{
                     producto.getIdProducto(),
                     producto.getNombre(),
@@ -39,16 +46,16 @@ public class FrmProductos extends javax.swing.JPanel {
                     producto.getPrecioCompra(),
                     producto.getPrecioVenta(),
                     producto.getDescripcion(),
-                    producto.getIdCategoria(),
-                    producto.getIdMarca(),
+                    nombreCategoria,
+                    nombreMarca,
                     producto.getFechaUltimaActualizacion(),
                     producto.isActivo()
                 });
             });
 
             lbl_totalRegistrados.setText("Total Registrados: " + model.getRowCount());
-        } catch (Exception e) {
-            System.out.println("Error al cargar productos: " + e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error al cargar productos: " + ex.getMessage());
         }
     }
 
@@ -257,11 +264,11 @@ public class FrmProductos extends javax.swing.JPanel {
     }//GEN-LAST:event_tablaListadoMousePressed
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        //FrmMenuPrincipal.ShowJPanel(new UpBooks());
+        FrmMenuPrincipal.ShowJPanel(new FrmAddProducto());
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        CrudGeneralInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
+        CrudProductoInterface dao = new ProductoDAO();
         DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
         if (tablaListado.getSelectedRows().length < 1) {
             javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más libros a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
@@ -280,9 +287,9 @@ public class FrmProductos extends javax.swing.JPanel {
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
         if (tablaListado.getSelectedRow() > -1) {
             try {
-                int bookId = (int) tablaListado.getValueAt(tablaListado.getSelectedRow(), 0);
-                CrudGeneralInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
-                //FrmMenuPrincipal.ShowJPanel(new UpBooks(dao.getBookById(bookId)));
+                int idProducto = (int) tablaListado.getValueAt(tablaListado.getSelectedRow(), 0);
+                CrudProductoInterface dao = new ProductoDAO();
+                FrmMenuPrincipal.ShowJPanel(new FrmAddProducto(dao.getProductoById(idProducto)));
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -293,11 +300,15 @@ public class FrmProductos extends javax.swing.JPanel {
 
     private void btn_BuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_BuscarActionPerformed
         try {
-            CrudGeneralInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
+            CrudProductoInterface dao = new ProductoDAO();
+            CategoriaDAO categoriaDAO = new CategoriaDAO();
+            MarcaDAO marcaDAO = new MarcaDAO();
             DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
             model.setRowCount(0); // Limpiar la tabla
 
             dao.listar(txtBuscar.getText()).forEach((u) -> {
+                String nombreCategoria = categoriaDAO.getNombrePorID(u.getIdCategoria());
+                String nombreMarca = marcaDAO.getNombrePorID(u.getIdMarca());
                 model.addRow(new Object[]{
                     u.getIdProducto(),
                     u.getNombre(),
@@ -305,8 +316,8 @@ public class FrmProductos extends javax.swing.JPanel {
                     u.getPrecioCompra(),
                     u.getPrecioVenta(),
                     u.getDescripcion(),
-                    u.getIdCategoria(),
-                    u.getIdMarca(),
+                    nombreCategoria,
+                    nombreMarca,
                     u.getFechaUltimaActualizacion(),
                     u.isActivo()
                 });

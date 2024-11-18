@@ -366,7 +366,7 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_proveedorActionPerformed
 
     private void btn_movimientosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_movimientosActionPerformed
-        //        ShowJPanel(new Reports());
+//                ShowJPanel(new Reports());
     }//GEN-LAST:event_btn_movimientosActionPerformed
 
     private void btn_categoriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_categoriasActionPerformed
