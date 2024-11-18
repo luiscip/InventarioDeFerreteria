@@ -5,7 +5,7 @@ import database.Conexion;
 import presentation.FrmMenuPrincipal;
 import java.awt.Color;
 import javax.swing.table.DefaultTableModel;
-import data.interfaces.CrudGeneralInterface;
+
 
 public class FrmMovimientos extends javax.swing.JPanel {
 
@@ -27,7 +27,7 @@ public class FrmMovimientos extends javax.swing.JPanel {
 
     private void CargarProductos() {
         try {
-            ProductoDAO dao = new ProductoDAO(Conexion.getInstancia().conectar()); // Cambiado aquí
+            ProductoDAO dao = new ProductoDAO(); // Cambiado aquí
             DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
             model.setRowCount(0); // Limpiar tabla antes de cargar datos
 
@@ -252,7 +252,7 @@ public class FrmMovimientos extends javax.swing.JPanel {
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        CrudGeneralInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
+        ProductoDAO dao = new ProductoDAO();
         DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
         if (tablaListado.getSelectedRows().length < 1) {
             javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más libros a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
@@ -270,7 +270,7 @@ public class FrmMovimientos extends javax.swing.JPanel {
 
     private void btn_BuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_BuscarActionPerformed
         try {
-            CrudGeneralInterface dao = new ProductoDAO(Conexion.getInstancia().conectar());
+            ProductoDAO dao = new ProductoDAO();
             DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
             model.setRowCount(0); // Limpiar la tabla
 
