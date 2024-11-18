@@ -157,4 +157,30 @@ public class CategoriaDAO implements CrudCategoriaInterface {
         }
         return categoria;
     }
+
+    public int obtenerORegistrarPorNombre(String nombre) throws SQLException {
+        String sqlBuscar = "SELECT id_categoria FROM Categoria WHERE nombre = ?;";
+        try (PreparedStatement ps = conexion.prepareStatement(sqlBuscar)) {
+            ps.setString(1, nombre);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_categoria");
+                }
+            }
+        }
+
+        // Si no existe, registrar la categoría
+        String sqlInsertar = "INSERT INTO Categoria (nombre, descripción, activo) VALUES (?, '', 1);";
+        try (PreparedStatement ps = conexion.prepareStatement(sqlInsertar, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, nombre);
+            ps.executeUpdate();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // ID generado
+                }
+            }
+        }
+        throw new SQLException("No se pudo registrar la categoría.");
+    }
+
 }

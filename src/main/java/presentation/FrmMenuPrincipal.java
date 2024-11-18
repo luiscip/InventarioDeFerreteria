@@ -17,7 +17,7 @@ import java.util.Locale;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
-import presentation.interfaces.FrmProductos;
+import presentation.interfaces.*;
 
 /**
  *
@@ -221,7 +221,7 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
         btn_proveedor.setBackground(new java.awt.Color(255, 130, 47));
         btn_proveedor.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btn_proveedor.setForeground(new java.awt.Color(0, 0, 0));
-        btn_proveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/proveedor.png"))); // NOI18N
+        btn_proveedor.setIcon(new javax.swing.ImageIcon(getClass().getResource("/proveedor2.png"))); // NOI18N
         btn_proveedor.setText("Proveedores");
         btn_proveedor.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 13, 1, 1, new java.awt.Color(0, 0, 0)));
         btn_proveedor.setBorderPainted(false);
@@ -362,11 +362,11 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_proveedorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_proveedorActionPerformed
-        // TODO add your handling code here:
+        ShowJPanel(new FrmProveedores());
     }//GEN-LAST:event_btn_proveedorActionPerformed
 
     private void btn_movimientosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_movimientosActionPerformed
-//                ShowJPanel(new Reports());
+                ShowJPanel(new FrmMovimientos());
     }//GEN-LAST:event_btn_movimientosActionPerformed
 
     private void btn_categoriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_categoriasActionPerformed
@@ -374,15 +374,15 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_categoriasActionPerformed
 
     private void btn_ubicacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ubicacionActionPerformed
-        //        ShowJPanel(new Users());
+                ShowJPanel(new FrmUbicacion());
     }//GEN-LAST:event_btn_ubicacionActionPerformed
 
     private void btn_compraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_compraActionPerformed
-        //        ShowJPanel(new Returns());
+                ShowJPanel(new FrmCompras());
     }//GEN-LAST:event_btn_compraActionPerformed
 
     private void btn_ventaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ventaActionPerformed
-        //        ShowJPanel(new Lendings());
+                ShowJPanel(new FrmVentas());
     }//GEN-LAST:event_btn_ventaActionPerformed
 
     private void btn_productosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_productosActionPerformed

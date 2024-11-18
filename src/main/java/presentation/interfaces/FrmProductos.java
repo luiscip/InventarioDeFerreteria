@@ -37,25 +37,31 @@ public class FrmProductos extends javax.swing.JPanel {
             model.setRowCount(0); // Limpiar tabla antes de cargar datos
 
             dao.listar("").forEach((producto) -> {
-                String nombreCategoria = categoriaDAO.getNombrePorID(producto.getIdCategoria());
-                String nombreMarca = marcaDAO.getNombrePorID(producto.getIdMarca());
-                model.addRow(new Object[]{
-                    producto.getIdProducto(),
-                    producto.getNombre(),
-                    producto.getStock(),
-                    producto.getPrecioCompra(),
-                    producto.getPrecioVenta(),
-                    producto.getDescripcion(),
-                    nombreCategoria,
-                    nombreMarca,
-                    producto.getFechaUltimaActualizacion(),
-                    producto.isActivo()
-                });
+                try {
+                    String nombreCategoria = categoriaDAO.getNombrePorID(producto.getIdCategoria());
+                    String nombreMarca = marcaDAO.getNombrePorID(producto.getIdMarca());
+                    model.addRow(new Object[]{
+                        producto.getIdProducto(),
+                        producto.getNombre(),
+                        producto.getStock(),
+                        producto.getPrecioCompra(),
+                        producto.getPrecioVenta(),
+                        producto.getDescripcion(),
+                        nombreCategoria,
+                        nombreMarca,
+                        producto.getFechaUltimaActualizacion(),
+                        producto.isActivo()
+                    });
+                } catch (SQLException e) {
+                    // Manejo del error específico para la obtención de nombres
+                    System.err.println("Error al obtener nombre de categoría o marca: " + e.getMessage());
+                }
             });
 
             lbl_totalRegistrados.setText("Total Registrados: " + model.getRowCount());
         } catch (SQLException ex) {
-            System.out.println("Error al cargar productos: " + ex.getMessage());
+            // Manejo del error general en la carga de productos
+            System.err.println("Error al cargar productos: " + ex.getMessage());
         }
     }
 
@@ -307,24 +313,30 @@ public class FrmProductos extends javax.swing.JPanel {
             model.setRowCount(0); // Limpiar la tabla
 
             dao.listar(txtBuscar.getText()).forEach((u) -> {
-                String nombreCategoria = categoriaDAO.getNombrePorID(u.getIdCategoria());
-                String nombreMarca = marcaDAO.getNombrePorID(u.getIdMarca());
-                model.addRow(new Object[]{
-                    u.getIdProducto(),
-                    u.getNombre(),
-                    u.getStock(),
-                    u.getPrecioCompra(),
-                    u.getPrecioVenta(),
-                    u.getDescripcion(),
-                    nombreCategoria,
-                    nombreMarca,
-                    u.getFechaUltimaActualizacion(),
-                    u.isActivo()
-                });
+                try {
+                    String nombreCategoria = categoriaDAO.getNombrePorID(u.getIdCategoria());
+                    String nombreMarca = marcaDAO.getNombrePorID(u.getIdMarca());
+                    model.addRow(new Object[]{
+                        u.getIdProducto(),
+                        u.getNombre(),
+                        u.getStock(),
+                        u.getPrecioCompra(),
+                        u.getPrecioVenta(),
+                        u.getDescripcion(),
+                        nombreCategoria,
+                        nombreMarca,
+                        u.getFechaUltimaActualizacion(),
+                        u.isActivo()
+                    });
+                } catch (SQLException e) {
+                    // Manejar el error en la obtención del nombre de la categoría o marca
+                    System.err.println("Error al obtener nombre de categoría o marca: " + e.getMessage());
+                }
             });
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            // Manejar cualquier otro error
+            System.err.println("Error en la búsqueda: " + e.getMessage());
         }
     }//GEN-LAST:event_btn_BuscarActionPerformed
 

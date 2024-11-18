@@ -1,189 +1,198 @@
 package data;
 
+import entities.Ubicacion;
+import data.interfaces.CrudUbicacion;
+import database.Conexion;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import database.Conexion;
-import data.interfaces.CrudSimpleInterface;
-import entities.Ubicacion;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 
-public class UbicacionDAO implements CrudSimpleInterface<Ubicacion> {
-    private final Conexion CON;
-    private PreparedStatement ps;
-    private ResultSet rs;
-    private boolean resp;
+public class UbicacionDAO implements CrudUbicacion {
+    private final Connection conexion;
 
     public UbicacionDAO() {
-        CON = Conexion.getInstancia();
+        this.conexion = Conexion.getInstancia().conectar();
     }
 
     @Override
-    public List<Ubicacion> listar(String texto) {
-        List<Ubicacion> registros = new ArrayList<>();
-
-        try {
-            ps = CON.conectar().prepareStatement("SELECT * FROM Ubicacion WHERE nombre LIKE ?");
-            ps.setString(1, "%" + texto + "%");
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                registros.add(new Ubicacion(
+    public List<Ubicacion> listar(String nombre) throws SQLException {
+        List<Ubicacion> lista = new ArrayList<>();
+        String sql = nombre.isEmpty()
+                ? "SELECT * FROM Ubicacion;"
+                : "SELECT * FROM Ubicacion WHERE nombre LIKE ?;";
+        
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            if (!nombre.isEmpty()) {
+                st.setString(1, "%" + nombre + "%");
+            }
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Ubicacion ubicacion = new Ubicacion(
                         rs.getInt("id_ubicacion"),
                         rs.getString("nombre"),
                         rs.getString("descripcion"),
                         rs.getString("seccion"),
                         rs.getBoolean("activo")
-                ));
+                    );
+                    lista.add(ubicacion);
+                }
             }
-            ps.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            CON.desconectar();
         }
-
-        return registros;
+        return lista;
     }
 
     @Override
-    public boolean insertar(Ubicacion obj) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "INSERT INTO Ubicacion (nombre, descripcion, seccion, activo) VALUES (?, ?, ?, ?)"
-            );
-            ps.setString(1, obj.getNombre());
-            ps.setString(2, obj.getDescripcion());
-            ps.setString(3, obj.getSeccion());
-            ps.setBoolean(4, obj.isActivo());
+    public void registrar(Ubicacion ubicacion) throws SQLException {
+        String sql = "INSERT INTO Ubicacion (nombre, descripcion, seccion, activo) VALUES (?, ?, ?, ?);";
 
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, ubicacion.getNombre());
+            st.setString(2, ubicacion.getDescripcion());
+            st.setString(3, ubicacion.getSeccion());
+            st.setBoolean(4, ubicacion.isActivo());
+            st.executeUpdate();
         }
-        return resp;
     }
 
     @Override
-    public boolean actualizar(Ubicacion obj) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement(
-                    "UPDATE Ubicacion SET nombre = ?, descripcion = ?, seccion = ?, activo = ? WHERE id_ubicacion = ?"
-            );
-            ps.setString(1, obj.getNombre());
-            ps.setString(2, obj.getDescripcion());
-            ps.setString(3, obj.getSeccion());
-            ps.setBoolean(4, obj.isActivo());
-            ps.setInt(5, obj.getIdUbicacion());
+    public void modificar(Ubicacion ubicacion) throws SQLException {
+        String sql = "UPDATE Ubicacion SET nombre = ?, descripcion = ?, seccion = ?, activo = ? WHERE id_ubicacion = ?;";
 
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, ubicacion.getNombre());
+            st.setString(2, ubicacion.getDescripcion());
+            st.setString(3, ubicacion.getSeccion());
+            st.setBoolean(4, ubicacion.isActivo());
+            st.setInt(5, ubicacion.getIdUbicacion());
+            st.executeUpdate();
         }
-        return resp;
     }
 
     @Override
-    public int total() {
-        int totalRegistros = 0;
-        try {
-            ps = CON.conectar().prepareStatement("SELECT COUNT(id_ubicacion) AS total FROM Ubicacion");
-            rs = ps.executeQuery();
+    public void eliminar(int id) throws SQLException {
+        String sql = "DELETE FROM Ubicacion WHERE id_ubicacion = ?;";
 
-            if (rs.next()) {
-                totalRegistros = rs.getInt("total");
-            }
-            ps.close();
-            rs.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            CON.desconectar();
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, id);
+            st.executeUpdate();
         }
-        return totalRegistros;
     }
 
     @Override
-    public boolean existencia(String existe) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement("SELECT nombre FROM Ubicacion WHERE nombre = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, existe);
-            rs = ps.executeQuery();
-            rs.last();
-            if (rs.getRow() > 0) {
-                resp = true;
+    public String getNombrePorID(int id) throws SQLException {
+        String nombre = "Desconocido";
+        String sql = "SELECT nombre FROM Ubicacion WHERE id_ubicacion = ?;";
+        
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    nombre = rs.getString("nombre");
+                }
             }
-            ps.close();
-            rs.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            CON.desconectar();
         }
-        return resp;
+        return nombre;
     }
 
     @Override
     public boolean desactivar(int id) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement("UPDATE Ubicacion SET activo = 0 WHERE id_ubicacion = ?");
-            ps.setInt(1, id);
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
-        }
-        return resp;
+        return cambiarEstado(id, false);
     }
 
     @Override
     public boolean activar(int id) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement("UPDATE Ubicacion SET activo = 1 WHERE id_ubicacion = ?");
-            ps.setInt(1, id);
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
-        }
-        return resp;
+        return cambiarEstado(id, true);
     }
+
+    private boolean cambiarEstado(int id, boolean activo) {
+        String sql = "UPDATE Ubicacion SET activo = ? WHERE id_ubicacion = ?;";
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setBoolean(1, activo);
+            st.setInt(2, id);
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public int total() {
+        String sql = "SELECT COUNT(*) FROM Ubicacion;";
+        try (PreparedStatement st = conexion.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean existencia(String nombre) {
+        String sql = "SELECT 1 FROM Ubicacion WHERE nombre = ?;";
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, nombre);
+            try (ResultSet rs = st.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public Ubicacion getCategoriaById(int id) throws SQLException {
+        Ubicacion ubicacion = null;
+        String sql = "SELECT * FROM Ubicacion WHERE id_ubicacion = ? LIMIT 1;";
+        
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, id);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    ubicacion = new Ubicacion(
+                        rs.getInt("id_ubicacion"),
+                        rs.getString("nombre"),
+                        rs.getString("descripcion"),
+                        rs.getString("seccion"),
+                        rs.getBoolean("activo")
+                    );
+                }
+            }
+        }
+        return ubicacion;
+    }
+
+
+    public int obtenerORegistrarPorNombre(String nombre) throws SQLException {
+    String sqlBuscar = "SELECT id_ubicacion FROM Ubicacion WHERE nombre = ?;";
+    try (PreparedStatement ps = conexion.prepareStatement(sqlBuscar)) {
+        ps.setString(1, nombre);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("id_ubicacion"); // Devuelve el ID si la ubicación ya existe
+            }
+        }
+    }
+
+    // Si no existe, registrar la ubicación
+    String sqlInsertar = "INSERT INTO Ubicacion (nombre, descripcion, seccion, activo) VALUES (?, '', 'General', 1);";
+    try (PreparedStatement ps = conexion.prepareStatement(sqlInsertar, Statement.RETURN_GENERATED_KEYS)) {
+        ps.setString(1, nombre);
+        ps.executeUpdate();
+        try (ResultSet rs = ps.getGeneratedKeys()) {
+            if (rs.next()) {
+                return rs.getInt(1); // ID generado automáticamente
+            }
+        }
+    }
+    throw new SQLException("No se pudo registrar la ubicación.");
+}
+
 }

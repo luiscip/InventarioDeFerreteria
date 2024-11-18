@@ -154,4 +154,30 @@ public class MarcaDAO implements CrudMarcaInterface {
         }
         return null;
     }
+
+    public int obtenerORegistrarPorNombre(String nombre) throws SQLException {
+        String sqlBuscar = "SELECT id_marca FROM Marca WHERE nombre = ?;";
+        try (PreparedStatement ps = conexion.prepareStatement(sqlBuscar)) {
+            ps.setString(1, nombre);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_marca"); // Devuelve el ID si la marca ya existe
+                }
+            }
+        }
+
+        // Si no existe, registrar la marca
+        String sqlInsertar = "INSERT INTO Marca (nombre, descripcion, activo) VALUES (?, '', 1);";
+        try (PreparedStatement ps = conexion.prepareStatement(sqlInsertar, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, nombre);
+            ps.executeUpdate();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // ID generado automáticamente
+                }
+            }
+        }
+        throw new SQLException("No se pudo registrar la marca.");
+    }
+
 }
