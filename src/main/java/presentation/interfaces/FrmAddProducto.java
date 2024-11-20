@@ -10,6 +10,7 @@ import entities.Producto;
 import utils.Utils;
 import java.awt.Color;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,7 +29,27 @@ public class FrmAddProducto extends javax.swing.JPanel {
         initComponents();
         isEdition = true;
         ProductoEditado = produc;
+        cargarProductoEnFormulario(produc);
         InitStyles();
+    }
+
+    private void cargarProductoEnFormulario(Producto producto) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator(',');
+        DecimalFormat decimalFormat = new DecimalFormat("#.##", symbols);
+
+        nombreTxt.setText(producto.getNombre());
+        descripcionTxt.setText(producto.getDescripcion());
+        precioCompraTxt.setText(decimalFormat.format(producto.getPrecioCompra()));
+        precioVentaTxt.setText(decimalFormat.format(producto.getPrecioVenta()));
+
+        // Llamar a los métodos de Producto para obtener los nombres de la categoría, marca y ubicación
+        categoriaTxt.setText(producto.getCategoriaNombre());
+        marcaTxt.setText(producto.getMarcaNombre());
+        ubicacionTxt.setText(producto.getUbicacionNombre());
+
+        stockTxt.setText(String.valueOf(producto.getStock()));
+        stockminimoTxt.setText(String.valueOf(producto.getStockMinimo()));
     }
 
     private void InitStyles() {
@@ -40,22 +61,25 @@ public class FrmAddProducto extends javax.swing.JPanel {
         descripcionTxt.putClientProperty("JTextField.placeholderText", "Ingrese la descripcion.");
         categoriaTxt.putClientProperty("JTextField.placeholderText", "Ingrese la categoria.");
         marcaTxt.putClientProperty("JTextField.placeholderText", "Ingrese la marca del producto.");
-//        fechaTxt.putClientProperty("JTextField.placeholderText", "Ingrese la fecha de actualización del producto.");
+        ubicacionTxt.putClientProperty("JTextField.placeholderText", "Ingrese la ubicación del producto.");
         stockTxt.putClientProperty("JTextField.placeholderText", "Ingrese el stock total del pruducto.");
         stockminimoTxt.putClientProperty("JTextField.placeholderText", "Ingrese el stock minimo del producto.");
 
         if (isEdition) {
-            title.setText("Editar producto");
+            title.setText("Editar Producto");
             button.setText("Guardar");
 
             if (ProductoEditado != null) {
+                DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+                symbols.setDecimalSeparator(',');
+                DecimalFormat decimalFormat = new DecimalFormat("#.##", symbols);
                 nombreTxt.setText(ProductoEditado.getNombre());
-                precioCompraTxt.setText(formato.format(ProductoEditado.getPrecioCompra()));
-                precioVentaTxt.setText(formato.format(ProductoEditado.getPrecioVenta()));
+                precioCompraTxt.setText(decimalFormat.format(ProductoEditado.getPrecioCompra()));
+                precioVentaTxt.setText(decimalFormat.format(ProductoEditado.getPrecioVenta()));
                 descripcionTxt.setText(ProductoEditado.getDescripcion());
-                categoriaTxt.setText(ProductoEditado.getIdCategoria() + "");
-                marcaTxt.setText(ProductoEditado.getIdMarca() + "");
-//                fechaTxt.setText(ProductoEditado.getFechaUltimaActualizacion());
+                categoriaTxt.setText(ProductoEditado.getCategoriaNombre());
+                marcaTxt.setText(ProductoEditado.getMarcaNombre());
+                ubicacionTxt.setText(ProductoEditado.getUbicacionNombre());
                 stockTxt.setText(ProductoEditado.getStock() + "");
                 stockminimoTxt.setText(ProductoEditado.getStockMinimo() + "");
             }
@@ -140,6 +164,12 @@ public class FrmAddProducto extends javax.swing.JPanel {
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonActionPerformed(evt);
+            }
+        });
+
+        ubicacionTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ubicacionTxtActionPerformed(evt);
             }
         });
 
@@ -261,7 +291,7 @@ public class FrmAddProducto extends javax.swing.JPanel {
         String descripcion = descripcionTxt.getText();
         String categoriaNombre = categoriaTxt.getText();
         String marcaNombre = marcaTxt.getText();
-        String ubicacionNombre = ubicacionTxt.getText(); // Nuevo campo para ubicación
+        String ubicacionNombre = ubicacionTxt.getText();
         String stock = stockTxt.getText();
         String stockminimo = stockminimoTxt.getText();
 
@@ -283,6 +313,10 @@ public class FrmAddProducto extends javax.swing.JPanel {
         String fechaActual = sdf.format(new Date());
 
         try {
+            // Convertir precios con reemplazo de coma por punto
+            double precioCompraDouble = Double.parseDouble(precioCompra.replace(",", "."));
+            double precioVentaDouble = Double.parseDouble(precioVenta.replace(",", "."));
+
             ProductoDAO dao = new ProductoDAO();
             CategoriaDAO categoriaDAO = new CategoriaDAO(); // DAO para Categoría
             MarcaDAO marcaDAO = new MarcaDAO();             // DAO para Marca
@@ -298,7 +332,7 @@ public class FrmAddProducto extends javax.swing.JPanel {
             // Crear el objeto Producto con los valores ingresados
             Producto produc = new Producto(0, idCategoria, idMarca, idUbicacion,
                     nombre, descripcion,
-                    Double.parseDouble(precioCompra), Double.parseDouble(precioVenta),
+                    precioCompraDouble, precioVentaDouble,
                     Integer.parseInt(stock), Integer.parseInt(stockminimo),
                     fechaActual, true);
 
@@ -319,7 +353,7 @@ public class FrmAddProducto extends javax.swing.JPanel {
                 descripcionTxt.setText("");
                 categoriaTxt.setText("");
                 marcaTxt.setText("");
-                ubicacionTxt.setText(""); // Limpiar campo ubicación
+                ubicacionTxt.setText("");
                 stockTxt.setText("");
                 stockminimoTxt.setText("");
             }
@@ -331,6 +365,10 @@ public class FrmAddProducto extends javax.swing.JPanel {
 
 
     }//GEN-LAST:event_buttonActionPerformed
+
+    private void ubicacionTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ubicacionTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ubicacionTxtActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel authorLbl;

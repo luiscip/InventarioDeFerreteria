@@ -3,6 +3,7 @@ package presentation.interfaces;
 import data.CategoriaDAO;
 import data.MarcaDAO;
 import data.ProductoDAO;
+import data.UbicacionDAO;
 import database.Conexion;
 import presentation.FrmMenuPrincipal;
 import java.awt.Color;
@@ -33,6 +34,7 @@ public class FrmProductos extends javax.swing.JPanel {
             ProductoDAO dao = new ProductoDAO(); // Cambiado aquí
             CategoriaDAO categoriaDAO = new CategoriaDAO();
             MarcaDAO marcaDAO = new MarcaDAO();
+            UbicacionDAO ubicacionDAO = new UbicacionDAO();
             DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
             model.setRowCount(0); // Limpiar tabla antes de cargar datos
 
@@ -40,6 +42,7 @@ public class FrmProductos extends javax.swing.JPanel {
                 try {
                     String nombreCategoria = categoriaDAO.getNombrePorID(producto.getIdCategoria());
                     String nombreMarca = marcaDAO.getNombrePorID(producto.getIdMarca());
+                    String nombreUbicacion = ubicacionDAO.getNombrePorID(producto.getIdUbicacion());
                     model.addRow(new Object[]{
                         producto.getIdProducto(),
                         producto.getNombre(),
@@ -49,12 +52,12 @@ public class FrmProductos extends javax.swing.JPanel {
                         producto.getDescripcion(),
                         nombreCategoria,
                         nombreMarca,
+                        nombreUbicacion,
                         producto.getFechaUltimaActualizacion(),
                         producto.isActivo()
                     });
                 } catch (SQLException e) {
-                    // Manejo del error específico para la obtención de nombres
-                    System.err.println("Error al obtener nombre de categoría o marca: " + e.getMessage());
+                    System.err.println("Error al obtener nombres de categoría, marca o ubicación: " + e.getMessage());
                 }
             });
 
@@ -65,6 +68,7 @@ public class FrmProductos extends javax.swing.JPanel {
         }
     }
 
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -157,14 +161,14 @@ public class FrmProductos extends javax.swing.JPanel {
 
             },
             new String [] {
-                "ID", "Nombre", "Stock", "Precio Compra", "Precio Venta", "Descripción", "Categoría", "Marca", "FechaActualizacion", "Estado"
+                "ID", "Nombre", "Stock", "Precio Compra", "Precio Venta", "Descripción", "Categoría", "Marca", "Ubicacion", "FechaActualizacion", "Estado"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -190,8 +194,9 @@ public class FrmProductos extends javax.swing.JPanel {
             tablaListado.getColumnModel().getColumn(5).setPreferredWidth(40);
             tablaListado.getColumnModel().getColumn(6).setPreferredWidth(30);
             tablaListado.getColumnModel().getColumn(7).setPreferredWidth(30);
-            tablaListado.getColumnModel().getColumn(8).setPreferredWidth(50);
-            tablaListado.getColumnModel().getColumn(9).setPreferredWidth(30);
+            tablaListado.getColumnModel().getColumn(8).setPreferredWidth(30);
+            tablaListado.getColumnModel().getColumn(9).setPreferredWidth(50);
+            tablaListado.getColumnModel().getColumn(10).setPreferredWidth(30);
         }
 
         title1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
@@ -300,7 +305,7 @@ public class FrmProductos extends javax.swing.JPanel {
                 System.out.println(e.getMessage());
             }
         } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar el producto a editar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar el libro a editar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
@@ -309,6 +314,7 @@ public class FrmProductos extends javax.swing.JPanel {
             CrudProductoInterface dao = new ProductoDAO();
             CategoriaDAO categoriaDAO = new CategoriaDAO();
             MarcaDAO marcaDAO = new MarcaDAO();
+            UbicacionDAO ubicacionDAO = new UbicacionDAO();
             DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
             model.setRowCount(0); // Limpiar la tabla
 
@@ -316,6 +322,7 @@ public class FrmProductos extends javax.swing.JPanel {
                 try {
                     String nombreCategoria = categoriaDAO.getNombrePorID(u.getIdCategoria());
                     String nombreMarca = marcaDAO.getNombrePorID(u.getIdMarca());
+                    String nombreUbicacion = ubicacionDAO.getNombrePorID(u.getIdUbicacion());
                     model.addRow(new Object[]{
                         u.getIdProducto(),
                         u.getNombre(),
@@ -325,6 +332,7 @@ public class FrmProductos extends javax.swing.JPanel {
                         u.getDescripcion(),
                         nombreCategoria,
                         nombreMarca,
+                        nombreUbicacion,
                         u.getFechaUltimaActualizacion(),
                         u.isActivo()
                     });
