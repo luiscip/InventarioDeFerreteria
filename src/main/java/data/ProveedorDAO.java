@@ -1,188 +1,178 @@
 package data;
 
+import entities.Proveedor;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import database.Conexion;
-import data.interfaces.CrudSimpleInterface;
-import entities.Proveedor;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
+import data.interfaces.CrudProveedorInterface;
+import database.Conexion;
 
-public class ProveedorDAO implements CrudSimpleInterface<Proveedor> {
-    private final Conexion CON;
-    private PreparedStatement ps;
-    private ResultSet rs;
-    private boolean resp;
+public class ProveedorDAO implements CrudProveedorInterface {
+
+    private Connection conexion;
 
     public ProveedorDAO() {
-        CON = Conexion.getInstancia();
+        this.conexion = Conexion.getInstancia().conectar();
     }
 
     @Override
-    public List<Proveedor> listar(String texto) {
-        List<Proveedor> registros = new ArrayList<>();
+    public List<Proveedor> listar(String nombre) throws SQLException {
+        List<Proveedor> lista = new ArrayList<>();
+        String sql = nombre.isEmpty() 
+                ? "SELECT * FROM Proveedor;" 
+                : "SELECT * FROM Proveedor WHERE nombre LIKE ?;";
 
-        try {
-            ps = CON.conectar().prepareStatement("SELECT * FROM Proveedor WHERE nombre LIKE ?");
-            ps.setString(1, "%" + texto + "%");
-            rs = ps.executeQuery();
-
-            while (rs.next()) {
-                registros.add(new Proveedor(
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            if (!nombre.isEmpty()) {
+                st.setString(1, "%" + nombre + "%");
+            }
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Proveedor proveedor = new Proveedor(
                         rs.getInt("id_proveedores"),
                         rs.getString("nombre"),
                         rs.getString("telefono"),
                         rs.getString("email"),
                         rs.getString("direccion"),
                         rs.getBoolean("activo")
-                ));
+                    );
+                    lista.add(proveedor);
+                }
             }
-            ps.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            CON.desconectar();
         }
-
-        return registros;
+        return lista;
     }
 
     @Override
-    public boolean insertar(Proveedor obj) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement("INSERT INTO Proveedor (nombre, telefono, email, direccion, activo) VALUES (?, ?, ?, ?, 1)");
-            ps.setString(1, obj.getNombreProveedor());
-            ps.setString(2, obj.getTelefonoProveedor());
-            ps.setString(3, obj.getEmailProveedor());
-            ps.setString(4, obj.getDireccionProveedor());
+    public void registrar(Proveedor proveedor) throws SQLException {
+        String sql = "INSERT INTO Proveedor (nombre, telefono, email, direccion, activo) VALUES (?, ?, ?, ?, ?);";
 
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, proveedor.getNombreProveedor());
+            st.setString(2, proveedor.getTelefonoProveedor());
+            st.setString(3, proveedor.getEmailProveedor());
+            st.setString(4, proveedor.getDireccionProveedor());
+            st.setBoolean(5, proveedor.isActivo());
+            st.executeUpdate();
         }
-        return resp;
     }
 
     @Override
-    public boolean actualizar(Proveedor obj) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement("UPDATE Proveedor SET nombre = ?, telefono = ?, email = ?, direccion = ? WHERE id_proveedores = ?");
-            ps.setString(1, obj.getNombreProveedor());
-            ps.setString(2, obj.getTelefonoProveedor());
-            ps.setString(3, obj.getEmailProveedor());
-            ps.setString(4, obj.getDireccionProveedor());
-            ps.setInt(5, obj.getIdProveedor());
+    public void modificar(Proveedor proveedor) throws SQLException {
+        String sql = "UPDATE Proveedor SET nombre = ?, telefono = ?, email = ?, direccion = ?, activo = ? WHERE id_proveedores = ?;";
 
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, proveedor.getNombreProveedor());
+            st.setString(2, proveedor.getTelefonoProveedor());
+            st.setString(3, proveedor.getEmailProveedor());
+            st.setString(4, proveedor.getDireccionProveedor());
+            st.setBoolean(5, proveedor.isActivo());
+            st.setInt(6, proveedor.getIdProveedor());
+            st.executeUpdate();
         }
-        return resp;
     }
 
     @Override
-    public int total() {
-        int totalRegistros = 0;
-        try {
-            ps = CON.conectar().prepareStatement("SELECT COUNT(id_proveedores) AS total FROM Proveedor");
-            rs = ps.executeQuery();
+    public void eliminar(int idProveedor) throws SQLException {
+        String sql = "DELETE FROM Proveedor WHERE id_proveedores = ?;";
 
-            if (rs.next()) {
-                totalRegistros = rs.getInt("total");
-            }
-            ps.close();
-            rs.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            CON.desconectar();
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, idProveedor);
+            st.executeUpdate();
         }
-        return totalRegistros;
     }
 
     @Override
-    public boolean existencia(String existe) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement("SELECT nombre FROM Proveedor WHERE nombre = ?", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setString(1, existe);
-            rs = ps.executeQuery();
-            rs.last();
-
-            if (rs.getRow() > 0) {
-                resp = true;
+    public String getNombrePorID(int id) {
+        String nombre = "Desconocido";
+        String sql = "SELECT nombre FROM Proveedor WHERE id_proveedores = ?;";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    nombre = rs.getString("nombre");
+                }
             }
-            ps.close();
-            rs.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            rs = null;
-            CON.desconectar();
+            e.printStackTrace();
         }
-        return resp;
+        return nombre;
     }
 
     @Override
     public boolean desactivar(int id) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement("UPDATE Proveedor SET activo = 0 WHERE id_proveedores = ?");
-            ps.setInt(1, id);
-
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
-        }
-        return resp;
+        return cambiarEstado(id, false);
     }
 
     @Override
     public boolean activar(int id) {
-        resp = false;
-        try {
-            ps = CON.conectar().prepareStatement("UPDATE Proveedor SET activo = 1 WHERE id_proveedores = ?");
-            ps.setInt(1, id);
+        return cambiarEstado(id, true);
+    }
 
-            if (ps.executeUpdate() > 0) {
-                resp = true;
-            }
-            ps.close();
+    private boolean cambiarEstado(int id, boolean activo) {
+        String sql = "UPDATE Proveedor SET activo = ? WHERE id_proveedores = ?;";
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setBoolean(1, activo);
+            st.setInt(2, id);
+            return st.executeUpdate() > 0;
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        } finally {
-            ps = null;
-            CON.desconectar();
+            e.printStackTrace();
         }
-        return resp;
+        return false;
+    }
+
+    @Override
+    public int total() {
+        String sql = "SELECT COUNT(*) FROM Proveedor;";
+        try (PreparedStatement st = conexion.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean existencia(String nombre) {
+        String sql = "SELECT 1 FROM Proveedor WHERE nombre = ?;";
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setString(1, nombre);
+            try (ResultSet rs = st.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public Proveedor getProveedorById(int idProveedor) throws Exception {
+        Proveedor proveedor = null;
+        String sql = "SELECT * FROM Proveedor WHERE id_proveedores = ? LIMIT 1;";
+
+        try (PreparedStatement st = conexion.prepareStatement(sql)) {
+            st.setInt(1, idProveedor);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    proveedor = new Proveedor(
+                        rs.getInt("id_proveedores"),
+                        rs.getString("nombre"),
+                        rs.getString("telefono"),
+                        rs.getString("email"),
+                        rs.getString("direccion"),
+                        rs.getBoolean("activo")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            throw e;
+        }
+        return proveedor;
     }
 }
