@@ -1,7 +1,12 @@
-
 package entities;
 
+import data.CategoriaDAO;
+import data.MarcaDAO;
+import data.UbicacionDAO;
+import java.sql.SQLException;
+
 public class Producto {
+
     private int idProducto;
     private int idCategoria;
     private int idMarca;
@@ -126,9 +131,39 @@ public class Producto {
         this.activo = activo;
     }
 
+    public String getCategoriaNombre() {
+        CategoriaDAO categoriaDAO = new CategoriaDAO();
+        try {
+            return categoriaDAO.getNombrePorID(this.idCategoria);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Desconocido";
+    }
+
+    public String getUbicacionNombre() {
+        UbicacionDAO ubicacionDAO = new UbicacionDAO();
+        try {
+            return ubicacionDAO.getNombrePorID(this.idUbicacion);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Desconocido";
+    }
+
+    public String getMarcaNombre() {
+        MarcaDAO marcaDAO = new MarcaDAO();
+        try {
+            return marcaDAO.getNombrePorID(this.idMarca);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Desconocido";
+    }
+
     @Override
     public String toString() {
         return "Producto{" + "idProducto=" + idProducto + ", idCategoria=" + idCategoria + ", idMarca=" + idMarca + ", idUbicacion=" + idUbicacion + ", nombre=" + nombre + ", descripcion=" + descripcion + ", precioCompra=" + precioCompra + ", precioVenta=" + precioVenta + ", stock=" + stock + ", stockMinimo=" + stockMinimo + ", fechaUltimaActualizacion=" + fechaUltimaActualizacion + ", activo=" + activo + '}';
     }
-    
+
 }
