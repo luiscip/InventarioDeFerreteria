@@ -443,7 +443,7 @@
                       <EmptySpace min="66" pref="66" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="navText" min="-2" pref="434" max="-2" attributes="0"/>
-                          <Component id="dateText" min="-2" pref="434" max="-2" attributes="0"/>
+                          <Component id="dateText" min="-2" pref="474" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
