@@ -66,7 +66,6 @@ public class FrmMovimientos extends javax.swing.JPanel {
         txtBuscar = new javax.swing.JTextField();
         btn_Buscar = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
-        addButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaListado = new javax.swing.JTable();
         title1 = new javax.swing.JLabel();
@@ -112,18 +111,6 @@ public class FrmMovimientos extends javax.swing.JPanel {
         deleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteButtonActionPerformed(evt);
-            }
-        });
-
-        addButton.setBackground(new java.awt.Color(255, 102, 0));
-        addButton.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        addButton.setForeground(new java.awt.Color(255, 255, 255));
-        addButton.setText("Nuevo");
-        addButton.setBorderPainted(false);
-        addButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        addButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addButtonActionPerformed(evt);
             }
         });
 
@@ -196,9 +183,7 @@ public class FrmMovimientos extends javax.swing.JPanel {
                 .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(title, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(57, Short.MAX_VALUE))
         );
@@ -225,8 +210,7 @@ public class FrmMovimientos extends javax.swing.JPanel {
                                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGap(18, 18, 18)
                                 .addComponent(deleteButton)
-                                .addGap(32, 32, 32)
-                                .addComponent(addButton))
+                                .addGap(68, 68, 68))
                             .addGroup(bgLayout.createSequentialGroup()
                                 .addGap(10, 10, 10)
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
@@ -248,10 +232,6 @@ public class FrmMovimientos extends javax.swing.JPanel {
     private void tablaListadoMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaListadoMousePressed
 
     }//GEN-LAST:event_tablaListadoMousePressed
-
-    private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        //FrmMenuPrincipal.ShowJPanel(new UpBooks());
-    }//GEN-LAST:event_addButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
         ProductoDAO dao = new ProductoDAO();
@@ -302,7 +282,6 @@ public class FrmMovimientos extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addButton;
     private javax.swing.JPanel bg;
     private javax.swing.JButton btn_Buscar;
     private javax.swing.JButton deleteButton;
