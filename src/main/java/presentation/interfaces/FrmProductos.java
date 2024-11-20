@@ -300,7 +300,7 @@ public class FrmProductos extends javax.swing.JPanel {
                 System.out.println(e.getMessage());
             }
         } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar el libro a editar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar el producto a editar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_editButtonActionPerformed
 

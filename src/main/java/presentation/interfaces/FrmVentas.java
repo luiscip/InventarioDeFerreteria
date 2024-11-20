@@ -233,7 +233,7 @@ public class FrmVentas extends javax.swing.JPanel {
                         .addGap(0, 85, Short.MAX_VALUE))
                     .addGroup(bgLayout.createSequentialGroup()
                         .addComponent(title1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(bgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(bgLayout.createSequentialGroup()
                                 .addGap(2, 2, 2)
                                 .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -273,7 +273,7 @@ public class FrmVentas extends javax.swing.JPanel {
         ProductoDAO dao = new ProductoDAO();
         DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
         if (tablaListado.getSelectedRows().length < 1) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más libros a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más productos a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
         } else {
             for (int i : tablaListado.getSelectedRows()) {
                 try {
@@ -296,7 +296,7 @@ public class FrmVentas extends javax.swing.JPanel {
                 System.out.println(e.getMessage());
             }
         } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar el libro a editar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar el producto a editar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_editButtonActionPerformed
 

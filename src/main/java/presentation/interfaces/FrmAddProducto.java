@@ -45,7 +45,7 @@ public class FrmAddProducto extends javax.swing.JPanel {
         stockminimoTxt.putClientProperty("JTextField.placeholderText", "Ingrese el stock minimo del producto.");
 
         if (isEdition) {
-            title.setText("Editar Libro");
+            title.setText("Editar producto");
             button.setText("Guardar");
 
             if (ProductoEditado != null) {

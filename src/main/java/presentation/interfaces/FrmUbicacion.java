@@ -273,7 +273,7 @@ public class FrmUbicacion extends javax.swing.JPanel {
         ProductoDAO dao = new ProductoDAO();
         DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
         if (tablaListado.getSelectedRows().length < 1) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más libros a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más productos a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
         } else {
             for (int i : tablaListado.getSelectedRows()) {
                 try {
@@ -296,7 +296,7 @@ public class FrmUbicacion extends javax.swing.JPanel {
                 System.out.println(e.getMessage());
             }
         } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar el libro a editar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar el producto a editar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
