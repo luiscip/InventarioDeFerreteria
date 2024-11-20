@@ -94,7 +94,6 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(1150, 670));
-        setPreferredSize(new java.awt.Dimension(1140, 660));
 
         background.setBackground(new java.awt.Color(255, 255, 255));
         background.setMinimumSize(new java.awt.Dimension(1140, 660));
@@ -370,7 +369,7 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_movimientosActionPerformed
 
     private void btn_categoriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_categoriasActionPerformed
-        //        ShowJPanel(new Books());
+                ShowJPanel(new FrmCategoria());
     }//GEN-LAST:event_btn_categoriasActionPerformed
 
     private void btn_ubicacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ubicacionActionPerformed

@@ -277,7 +277,7 @@ public class FrmProductos extends javax.swing.JPanel {
         CrudProductoInterface dao = new ProductoDAO();
         DefaultTableModel model = (DefaultTableModel) tablaListado.getModel();
         if (tablaListado.getSelectedRows().length < 1) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más libros a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Debes seleccionar uno o más productos a eliminar.\n", "AVISO", javax.swing.JOptionPane.ERROR_MESSAGE);
         } else {
             for (int i : tablaListado.getSelectedRows()) {
                 try {
