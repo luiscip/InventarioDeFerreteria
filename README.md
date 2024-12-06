@@ -5,6 +5,13 @@ Este proyecto es un sistema de gestión de inventario para una ferretería. Perm
 
 ---
 
+## Vista Previa
+A continuación, una captura de la interfaz principal de la aplicación:
+
+![Interfaz Principal](images/menuPrincipal.png)
+
+---
+
 ## **Características**
 - Gestión de usuarios con roles.
 - Control de categorías, marcas y productos.
