@@ -44,11 +44,11 @@ Antes de ejecutar este proyecto, asegúrate de tener lo siguiente instalado:
    git clone https://github.com/luiscip/InventarioDeFerreteria.git
    ```
 2. Abre el proyecto en **NetBeans**.
-3. Asegúrate de que el archivo de conexión a la base de datos (`ConexionDB.java`) tenga los siguientes parámetros configurados:
+3. Asegúrate de que el archivo de conexión a la base de datos (`Conexion.java`) tenga los siguientes parámetros configurados:
    ```java
-   private static final String URL = "jdbc:mysql://localhost:3306/dbinventario";
-   private static final String USER = "root";
-   private static final String PASSWORD = ""; // Contraseña por defecto de XAMPP
+    private final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    private final String URL = "jdbc:mysql://localhost:3306/";
+    private final String DB = "dbinventario";
    ```
 4. Verifica que las bibliotecas de MySQL JDBC estén configuradas:
    - Descarga el conector [MySQL JDBC Driver](https://dev.mysql.com/downloads/connector/j/).
@@ -70,10 +70,10 @@ InventarioDeFerreteria/
 │
 ├── src/
 │   ├── main/
-│   │   ├── java/
-│   │   │   └── ConexionDB.java    # Archivo para gestionar la conexión a la base de datos
-│   │   └── gui/
-│   │       └── JFrameVentana.java # Ventana principal del sistema
+│   │   ├── database/
+│   │   │   └── Conexion.java    # Archivo para gestionar la conexión a la base de datos
+│   │   └── presentation/
+│   │       └── FrmMenuPrincipal.java # Ventana principal del sistema
 │
 ├── README.md                     # Documentación del proyecto
 ```
